@@ -1,6 +1,6 @@
 -- define schema auth
 
-CREATE SCHEMA auth AUTHORIZATION myuser;
+CREATE SCHEMA auth AUTHORIZATION pg_database_owner;
 
 -- auth.users definition
 

@@ -45,4 +45,6 @@ features = [
     "json",
     "macros",
     "migrate",
+    "runtime-async-std",
+    "uuid",
 ]

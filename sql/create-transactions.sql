@@ -1,6 +1,6 @@
 -- define schema transactions
 
-CREATE SCHEMA transactions AUTHORIZATION myuser;
+CREATE SCHEMA transactions AUTHORIZATION pg_database_owner;
 
 COMMENT ON SCHEMA transactions IS 'borrowing and usage of material by users';
 
