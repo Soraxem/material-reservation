@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Article List</title>
+    <link rel="stylesheet" href="/lib/bootstrap.min.css">
+</head>
+
+<body>
+
+    <nav class="navbar shadow bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                Inventar
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Containers -->
+    <div class="container-fluid row">
+        <div class="col-md-2 col-lg-3 d-none d-md-block d-lg-none"></div>
+        <div class="col-md-2 col-lg-3 d-none d-lg-block d-print-none mt-2 mt-md-4 sticky-top">
+        </div>
+        <div class="col-md-8 col-lg-6 mt-2 mt-md-4">
+
+            <button class="btn btn-primary" onclick="refresh_list()">Refresh</button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#creationModal">Add
+                Article</button>
+
+            <div id="article-list">
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- Modal for creating a new Article -->
+    <div class="modal fade" id="creationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">New Article</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Name:</label>
+                            <input type="text" class="form-control" id="article-name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label">Description:</label>
+                            <textarea class="form-control" id="article-description"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="user_add_article()" data-bs-dismiss="modal">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<!-- Template of the Article List entrys -->
+<template id="article-template">
+    <div id="article-id" class="card">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="..." class="img-fluid rounded-start" >
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title article-name"></h5>
+                    <p class="card-text article-description"></p>
+                </div>
+             </div>
+        </div>
+    </div>
+</template>
+
+
+
+<script src="/lib/api.js"></script>
+<script src="/lib/bootstrap.min.js"></script>
+
+<script>
+
+    async function user_add_article() {
+        let name = document.querySelector("#article-name").value;
+        let description = document.querySelector("#article-description").value;
+        await create_article(name, description);
+        refresh_list();
+    }
+
+    const template = document.querySelector("#article-template");
+    const list = document.querySelector("#article-list");
+
+    async function refresh_list() {
+        let article_list = await list_article();
+
+        list.textContent = "";
+
+        for (var key in article_list) {
+            if (article_list.hasOwnProperty(key)) {
+
+                let clone = document.importNode(template.content, true);
+                clone.querySelector(".article-name").textContent = article_list[key].name;
+                clone.querySelector(".article-description").textContent = article_list[key].description;
+
+                list.appendChild(clone);
+
+            }
+        }
+    }
+
+    refresh_list()
+</script>
+
+</html>
