@@ -48,6 +48,7 @@ async fn init_database() -> PgPool {
         .max_connections(25)
         .connect("postgres://user:thePassword@database/mat").await.expect("connection failed");
 
+    /*
     // Drop all Data -> Only during development
     query_file(&pool, "sql/drop-everything.sql").await;
 
@@ -55,6 +56,7 @@ async fn init_database() -> PgPool {
     query_file(&pool, "sql/create-auth.sql").await;
     query_file(&pool, "sql/create-inventory.sql").await;
     query_file(&pool, "sql/create-transactions.sql").await;
+    */
 
     return pool
 }
@@ -75,6 +77,17 @@ async fn list_article(state: &State<AppState>) -> Json<Vec<Article>> {
         .expect("could not fetch articles!");
     
     Json(rows)
+}
+
+#[get("/get-article/<id>")]
+async fn get_article(state: &State<AppState>, id: String) -> Json<Article> {
+    let row = query_as::<_, Article>("SELECT pk, name, description FROM inventory.articles WHERE pk = CAST($1 AS uuid)")
+        .bind(id)
+        .fetch_one(&state.db)
+        .await
+        .expect("Could not fetch the requested Article!");
+
+    Json(row)
 }
 
 
@@ -98,6 +111,57 @@ async fn create_article(state: &State<AppState>, article: Json<NewArticle>) -> S
     "ok".to_string()
 }
 
+#[derive(Debug, Serialize, FromRow)]
+struct Position {
+    pk: Uuid,
+    fk_article: Uuid,
+    is_consumable: bool,
+    is_unique: bool,
+    amount: Option<i32>,
+    normal_amount: Option<i32>,
+    unique_name: Option<String>,
+}
+
+#[get("/list-position/<article_id>")]
+async fn list_position(state: &State<AppState>, article_id: String) -> Json<Vec<Position>> {
+
+    let row = query_as::<_, Position>("SELECT * FROM inventory.positions WHERE fk_article = CAST($1 AS uuid)")
+        .bind(article_id)
+        .fetch_all(&state.db)
+        .await
+        .expect("Could not fetch the requested Article!");
+
+    Json(row)
+    
+}
+
+#[derive(Deserialize, Debug)]
+struct NewPosition {
+    fk_article: Uuid,
+    is_consumable: bool,
+    is_unique: bool,
+    amount: i32,
+    normal_amount: Option<i32>,
+    unique_name: Option<String>,
+}
+
+#[post("/create-position", data = "<position>")]
+async fn create_position(state: &State<AppState>, position: Json<NewPosition>) -> String {
+
+    query("INSERT INTO inventory.positions (fk_article, is_consumable, is_unique, amount, normal_amount, unique_name) VALUES ($1, $2, $3, $4, $5, $6)")
+        .bind(&position.fk_article)
+        .bind(&position.is_consumable)
+        .bind(&position.is_unique)
+        .bind(&position.amount)
+        .bind(&position.normal_amount)
+        .bind(&position.unique_name)
+        .execute(&state.db)
+        .await
+        .expect("Failed");
+
+    "ok".to_string()
+}
+
 struct AppState {
     db: PgPool
 }
@@ -111,6 +175,6 @@ async fn rocket() -> _ {
 
     rocket::build()
         .mount("/", FileServer::from(relative!("html")))
-        .mount("/api", routes![list_article, create_article])
+        .mount("/api", routes![list_article, get_article, create_article, list_position, create_position])
         .manage(state)
 }

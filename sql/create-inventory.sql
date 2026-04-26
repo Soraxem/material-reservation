@@ -13,25 +13,25 @@ CREATE TABLE inventory.articles (
 	CONSTRAINT articles_pk PRIMARY KEY (pk)
 );
 
--- inventory.items definition
+-- inventory.positions definition
 
-CREATE TABLE inventory.items (
+CREATE TABLE inventory.positions (
 	pk uuid DEFAULT uuidv4() NOT NULL,
 	fk_article uuid NOT NULL,
 	is_consumable bool NOT NULL,
 	is_unique bool NOT NULL,
-	amount int4 NULL, -- only 0 or 1 if item is unique, otherwise amount
-	normal_amount int4 NULL, -- ignore when item is unique
-	unique_name text NULL, -- ignore when item not unique
-	CONSTRAINT item_registry_pk PRIMARY KEY (pk),
-	CONSTRAINT item_registry_articles_fk FOREIGN KEY (fk_article) REFERENCES inventory.articles(pk)
+	amount int4 NOT NULL, -- only 0 or 1 if position is unique, otherwise amount
+	normal_amount int4 NULL, -- ignore when position is unique
+	unique_name text NULL, -- ignore when position not unique
+	CONSTRAINT position_registry_pk PRIMARY KEY (pk),
+	CONSTRAINT position_registry_articles_fk FOREIGN KEY (fk_article) REFERENCES inventory.articles(pk)
 );
 
 -- Column comments
 
-COMMENT ON COLUMN inventory.items.amount IS 'only 0 or 1 if item is unique, otherwise amount';
-COMMENT ON COLUMN inventory.items.normal_amount IS 'ignore when item is unique';
-COMMENT ON COLUMN inventory.items.unique_name IS 'ignore when item not unique';
+COMMENT ON COLUMN inventory.positions.amount IS 'only 0 or 1 if position is unique, otherwise amount';
+COMMENT ON COLUMN inventory.positions.normal_amount IS 'ignore when position is unique';
+COMMENT ON COLUMN inventory.positions.unique_name IS 'ignore when position not unique';
 
 -- inventory.article_relations definition
 
@@ -42,15 +42,15 @@ CREATE TABLE inventory.article_relations (
 	CONSTRAINT from_article_fk FOREIGN KEY (from_article_id) REFERENCES inventory.articles(pk) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT to_article_fk FOREIGN KEY (to_article_id) REFERENCES inventory.articles(pk) ON DELETE CASCADE ON UPDATE CASCADE
 );
-COMMENT ON TABLE inventory.article_relations IS 'Defines directional Item relations, as recommendations for users.';
+COMMENT ON TABLE inventory.article_relations IS 'Defines directional position relations, as recommendations for users.';
 
 
 -- inventory.article_list view
 
 CREATE OR REPLACE VIEW inventory.article_list
 AS SELECT articles.name,
-    items.amount
-   FROM inventory.items
-     JOIN inventory.articles ON items.fk_article = articles.pk;
+    positions.amount
+   FROM inventory.positions
+     JOIN inventory.articles ON positions.fk_article = articles.pk;
 
-COMMENT ON VIEW inventory.article_list IS 'Display item amounts with their name';
+COMMENT ON VIEW inventory.article_list IS 'Display position amounts with their name';

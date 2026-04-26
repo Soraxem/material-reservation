@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Article</title>
+    <link rel="stylesheet" href="/lib/bootstrap.min.css">
+</head>
+
+<body>
+
+    <!-- Navbar Placeholder -->
+    <nav class="navbar shadow bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                Inventar
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Containers -->
+    
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8 p-3">
+    
+                <h1 id="article-name"></h1>
+                <p id="article-description"></p>
+    
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Consumable</th>
+                        </tr>
+                    </thead>
+                    <tbody id="position-list">
+    
+                    </tbody>
+                </table>
+    
+            </div>
+        </div>
+    </div>
+    
+    
+</body>
+
+<!-- Template of the Article List entrys -->
+<template id="position-template">
+    <tr id="position-id">
+      <td class="position-name">Mark</td>
+      <td class="position-amount">Otto</td>
+      <td class="position-consumable">@mdo</td>
+    </tr>
+</template>
+
+
+
+
+
+
+
+<script src="/lib/api.js"></script>
+<script src="/lib/bootstrap.min.js"></script>
+
+<script>
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const article_id = urlParams.get('id');
+
+    async function refresh_article_infos() {
+
+        let data = await get_article(article_id);
+
+        document.querySelector("#article-name").textContent = data.name;
+        document.querySelector("#article-description").textContent = data.description;
+
+    }
+
+    const template = document.querySelector("#position-template");
+    const list = document.querySelector("#position-list");
+
+    async function refresh_position_list() {
+        
+        let position_list = await list_position(article_id);
+
+        // Iterate all Positions
+        for (var key in position_list) {
+            if (position_list.hasOwnProperty(key)) {
+
+                let clone = document.importNode(template.content, true);
+
+                clone.querySelector(".position-name").textContent = position_list[key].unique_name;
+                clone.querySelector(".position-amount").textContent = position_list[key].amount;
+                clone.querySelector(".position-consumable").textContent = position_list[key].is_consumable;
+
+                clone.querySelector("#position-id").id = position_list[key].pk;
+
+                list.appendChild(clone);
+
+            }
+        }
+    }
+
+    refresh_article_infos();
+    refresh_position_list();
+
+</script>
+
+</html>

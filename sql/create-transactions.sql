@@ -31,5 +31,5 @@ COMMENT ON TABLE transactions.reservation_items IS 'Join items to reservations';
 
 -- transactions.reservation_items foreign keys
 
-ALTER TABLE transactions.reservation_items ADD CONSTRAINT items_fk FOREIGN KEY (item_id) REFERENCES inventory.items(pk);
+ALTER TABLE transactions.reservation_items ADD CONSTRAINT items_fk FOREIGN KEY (item_id) REFERENCES inventory.positions(pk);
 ALTER TABLE transactions.reservation_items ADD CONSTRAINT reservations_fk FOREIGN KEY (reservation_id) REFERENCES transactions.reservations(pk);

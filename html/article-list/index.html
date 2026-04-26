@@ -12,6 +12,7 @@
 
 <body>
 
+    <!-- Navbar Placeholder -->
     <nav class="navbar shadow bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
@@ -21,20 +22,20 @@
     </nav>
 
     <!-- Main Containers -->
-    <div class="container-fluid row">
-        <div class="col-md-2 col-lg-3 d-none d-md-block d-lg-none"></div>
-        <div class="col-md-2 col-lg-3 d-none d-lg-block d-print-none mt-2 mt-md-4 sticky-top">
-        </div>
-        <div class="col-md-8 col-lg-6 mt-2 mt-md-4">
+    
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 p-3">
 
             <button class="btn btn-primary" onclick="refresh_list()">Refresh</button>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#creationModal">Add
                 Article</button>
 
-            <div id="article-list">
+            <div id="article-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 
             </div>
 
+        </div>
         </div>
     </div>
 
@@ -72,18 +73,16 @@
 
 <!-- Template of the Article List entrys -->
 <template id="article-template">
-    <div id="article-id" class="card">
-        <div class="row g-0">
-            <div class="col-md-4">
-                <img src="..." class="img-fluid rounded-start" >
-            </div>
-            <div class="col-md-8">
+    <div id="article-id" class="col">
+        <a href="/ziel" class="text-decoration-none article-link">
+            <div class="card h-100">
+                <img src="..." class="card-image-top rounded p-2">
                 <div class="card-body">
-                    <h5 class="card-title article-name"></h5>
+                    <h5 href="/google.com" class="card-title article-name stretched-link"></h5>
                     <p class="card-text article-description"></p>
                 </div>
-             </div>
-        </div>
+            </div>
+        </a>
     </div>
 </template>
 
@@ -115,6 +114,9 @@
                 let clone = document.importNode(template.content, true);
                 clone.querySelector(".article-name").textContent = article_list[key].name;
                 clone.querySelector(".article-description").textContent = article_list[key].description;
+
+                clone.querySelector("#article-id").id = article_list[key].pk;
+                clone.querySelector(".article-link").href = "/article/?id=" + article_list[key].pk;
 
                 list.appendChild(clone);
 
