@@ -22,14 +22,23 @@
     </nav>
 
     <!-- Main Containers -->
-    
+
     <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-8 p-3">
-    
-                <h1 id="article-name"></h1>
+
+                <img src="/img/no-image.svg" class="mx-auto rounded d-block p-2 border center w-100"
+                    style="max-height: 30vh;">
+
+                <h1 id="article-name" class="mt-3"></h1>
                 <p id="article-description"></p>
-    
+
+                <div class="btn-group pb-2" role="group">
+                    <button type="button" class="btn btn-secondary" onclick="refresh_position_list()">Refresh</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#creationModal">Add Position</button>
+                </div>
+
                 <table class="table">
                     <thead>
                         <tr>
@@ -39,30 +48,81 @@
                         </tr>
                     </thead>
                     <tbody id="position-list">
-    
+
                     </tbody>
                 </table>
-    
+
             </div>
         </div>
     </div>
-    
-    
+
+    <!-- Modal for creating a new Position -->
+    <div class="modal fade" id="creationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">New Position</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+
+                        <div class="mb-3 form-check">
+                            <input id="is-consumable" type="checkbox" class="form-check-input" autocomplete="off">
+                            <label for="is-consumable" class="form-check-label" >Consumable</label>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input id="is-unique" type="checkbox" class="form-check-input" data-bs-toggle="collapse" data-bs-target=".unique-collapse" autocomplete="off">
+                            <label for="is-unique" class="form-check-label" >Unique</label>
+                        </div>
+
+                        <!-- Only When Unique -->
+                        <div class="collapse unique-collapse">
+                            <div class="mb-3">
+                                <label for="unique-name" class="col-form-label">Unique Name</label>
+                                <input id="unique-name" type="text" class="form-control" value="" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <!-- Only When not Unique -->
+                        <div class="collapse show unique-collapse">
+                            <div class="mb-3">
+                                <label for="amount" class="form-check-label">Amount</label>
+                                <input id="amount" type="number" class="form-control" min="0" value="" autocomplete="off">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="normal-amount" class="form-check-label" >Normal Amount</label>
+                                <input id="normal-amount" type="number" class="form-control" min="0" value="" autocomplete="off">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="user_add_position()"
+                        data-bs-dismiss="modal">Send</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </body>
 
 <!-- Template of the Article List entrys -->
 <template id="position-template">
     <tr id="position-id">
-      <td class="position-name">Mark</td>
-      <td class="position-amount">Otto</td>
-      <td class="position-consumable">@mdo</td>
+        <td class="position-name">Mark</td>
+        <td class="position-amount">Otto</td>
+        <td class="position-consumable">@mdo</td>
     </tr>
 </template>
-
-
-
-
-
 
 
 <script src="/lib/api.js"></script>
@@ -86,8 +146,10 @@
     const list = document.querySelector("#position-list");
 
     async function refresh_position_list() {
-        
+
         let position_list = await list_position(article_id);
+
+        list.textContent = "";
 
         // Iterate all Positions
         for (var key in position_list) {
@@ -105,6 +167,30 @@
 
             }
         }
+    }
+
+    async function user_add_position() {
+
+        let is_consumable = document.querySelector("#is-consumable").checked;
+        let is_unique = document.querySelector("#is-unique").checked;
+
+        let amount = Number.parseInt(document.querySelector("#amount").value, 10);
+        let normal_amount = Number.parseInt(document.querySelector("#normal-amount").value, 10);
+        
+        let unique_name = document.querySelector("#unique-name").value || null;
+
+        if (is_unique) {
+            amount = 1;
+            normal_amount = null;
+        } else {
+            amount = Number.isInteger(amount) ? amount : 0;
+            normal_amount = Number.isInteger(amount) ? amount : 0;
+            unique_name = null;
+        }
+
+        await create_position(article_id, is_consumable, is_unique, amount, normal_amount, unique_name);
+
+        refresh_position_list();
     }
 
     refresh_article_infos();
