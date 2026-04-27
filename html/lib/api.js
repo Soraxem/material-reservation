@@ -28,6 +28,10 @@ async function get_article(id) {
     return data
 }
 
+async function delete_article(id) {
+    const rawResponse = await fetch("/api/delete-article/" + id);
+}
+
 
 async function list_position(article_id) {
     const rawResponse = await fetch("/api/list-position/" + article_id);

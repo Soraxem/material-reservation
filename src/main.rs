@@ -90,6 +90,17 @@ async fn get_article(state: &State<AppState>, id: String) -> Json<Article> {
     Json(row)
 }
 
+#[get("/delete-article/<id>")]
+async fn delete_article(state: &State<AppState>, id: String) -> String {
+    query("DELETE FROM inventory.articles WHERE pk = CAST($1 AS uuid)")
+        .bind(id)
+        .execute(&state.db)
+        .await
+        .expect("Could not fetch the requested Article!");
+
+    "ok".to_string()
+}
+
 
 #[derive(Deserialize, Debug)]
 struct NewArticle {
@@ -175,6 +186,6 @@ async fn rocket() -> _ {
 
     rocket::build()
         .mount("/", FileServer::from(relative!("html")))
-        .mount("/api", routes![list_article, get_article, create_article, list_position, create_position])
+        .mount("/api", routes![list_article, get_article, create_article, delete_article, list_position, create_position])
         .manage(state)
 }

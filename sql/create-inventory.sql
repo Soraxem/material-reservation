@@ -24,7 +24,7 @@ CREATE TABLE inventory.positions (
 	normal_amount int4 NULL, -- ignore when position is unique
 	unique_name text NULL, -- ignore when position not unique
 	CONSTRAINT position_registry_pk PRIMARY KEY (pk),
-	CONSTRAINT position_registry_articles_fk FOREIGN KEY (fk_article) REFERENCES inventory.articles(pk)
+	CONSTRAINT position_registry_articles_fk FOREIGN KEY (fk_article) REFERENCES inventory.articles(pk) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Column comments
